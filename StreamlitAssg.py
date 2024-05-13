@@ -24,6 +24,8 @@ def fetch_protein_data(uniprot_id):
 
 
 # Function to fetch protein-protein interaction network from STRING DB
+import traceback
+
 # Function to fetch protein-protein interaction network from STRING DB
 def fetch_ppi_network(uniprot_id):
     url = f"https://string-db.org/api/json/interaction_partners?identifiers={uniprot_id}"
@@ -40,9 +42,11 @@ def fetch_ppi_network(uniprot_id):
         st.error(f"Failed to fetch protein-protein interaction network: {e}")
         st.error("Response status code:", response.status_code)
         st.error("Response content:", response.content)
+        traceback.print_exc()  # Print the full traceback
         return None
     except Exception as e:
         st.error("An unexpected error occurred:", e)
+        traceback.print_exc()  # Print the full traceback
         return None
 
 # Function to perform sequence alignment
