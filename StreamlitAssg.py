@@ -36,6 +36,7 @@ def fetch_ppi_network(uniprot_id):
         print(f"Response text: {response.text}")
         return None
 
+
 # Function to perform sequence alignment
 def perform_sequence_alignment(protein_sequence):
     # Write the protein sequence to a temporary FASTA file
