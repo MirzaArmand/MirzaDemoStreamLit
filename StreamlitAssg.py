@@ -12,7 +12,7 @@ def fetch_protein_data(uniprot_id):
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
         if response.ok:
-            record = SeqIO.read(io.StringIO('\n'.join(response.text.splitlines())), "fasta")
+            record = SeqIO.read(io.StringIO(response.text), "fasta", alphabet=IUPAC.protein)
             return {
                 "sequence": str(record.seq),
                 "length": len(record.seq),
