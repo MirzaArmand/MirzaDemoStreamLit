@@ -4,6 +4,8 @@ import requests
 from Bio import SeqIO, SeqUtils
 from Bio.Align.Applications import ClustalOmegaCommandline
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
+import networkx as nx
+import matplotlib.pyplot as plt
 
 # Function to fetch protein data from UniProt
 def fetch_protein_data(uniprot_id):
@@ -29,30 +31,34 @@ def fetch_ppi_network(uniprot_id):
     try:
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
-        st.write("Response content:", response.content)
         data = response.json()
-        st.write("Data structure:", data)
 
         # Check if data is a list of dictionaries
         if isinstance(data, list):
-            interaction_partners = []
-            for item in data:
-                if "preferredName_A" in item:
-                    interaction_partners.append(item["preferredName_A"])
-                if "preferredName_B" in item:
-                    interaction_partners.append(item["preferredName_B"])
-            return interaction_partners
+            return data
         else:
             raise ValueError("Unexpected data structure")
 
     except Exception as e:
         st.error("An unexpected error occurred while fetching protein-protein interaction network:", e)
-        st.error("Response status code:", response.status_code)
-        st.error("Response content:", response.content)
-        st.error("Response text:", response.text)
         return None
 
+# Function to visualize protein-protein interaction network
+def visualize_ppi_network(data):
+    # Create a directed graph
+    G = nx.DiGraph()
 
+    # Add nodes and edges to the graph
+    for interaction in data:
+        protein_A = interaction["preferredName_A"]
+        protein_B = interaction["preferredName_B"]
+        G.add_edge(protein_A, protein_B)
+
+    # Draw the graph
+    pos = nx.spring_layout(G)
+    nx.draw(G, pos, with_labels=True, node_color='skyblue', node_size=1500, edge_color='black', linewidths=1, font_size=10)
+    plt.title("Protein-Protein Interaction Network")
+    st.pyplot()
 
 # Function to perform sequence alignment
 def perform_sequence_alignment(protein_sequence):
@@ -94,7 +100,7 @@ def main():
                 st.write("### Protein-Protein Interaction Network")
                 ppi_network = fetch_ppi_network(uniprot_id)
                 if ppi_network:
-                    st.write(ppi_network)
+                    visualize_ppi_network(ppi_network)
                 else:
                     st.write("Failed to fetch PPI network.")
 
@@ -120,4 +126,5 @@ def main():
             hydrophobicity = protein_analysis.protein_scale(window=9, edge="center")[0]
             st.write(f"Hydrophobicity: {hydrophobicity}")
 
-main()
+if __name__ == "__main__":
+    main()
