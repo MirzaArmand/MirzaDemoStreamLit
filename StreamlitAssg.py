@@ -24,29 +24,16 @@ def fetch_protein_data(uniprot_id):
 
 
 # Function to fetch protein-protein interaction network from STRING DB
-import traceback
-
-# Function to fetch protein-protein interaction network from STRING DB
 def fetch_ppi_network(uniprot_id):
     url = f"https://string-db.org/api/json/interaction_partners?identifiers={uniprot_id}"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
+    response = requests.get(url)
+    if response.ok:
         data = response.json()
-        interaction_partners = [partner["preferredName"] for partner in data[uniprot_id]]
+        interaction_partners = [partner["preferredName"] for partner in data if "preferredName" in partner]
         return interaction_partners
-    except requests.exceptions.RequestException as e:
-        st.error("An error occurred while fetching protein-protein interaction network:", e)
-        return None
-    except KeyError as e:
-        st.error(f"Failed to fetch protein-protein interaction network: {e}")
-        st.error("Response status code:", response.status_code)
-        st.error("Response content:", response.content)
-        traceback.print_exc()  # Print the full traceback
-        return None
-    except Exception as e:
-        st.error("An unexpected error occurred:", e)
-        traceback.print_exc()  # Print the full traceback
+    else:
+        print(f"Failed to fetch PPI network. HTTP status code: {response.status_code}")
+        print(f"Response text: {response.text}")
         return None
 
 # Function to perform sequence alignment
