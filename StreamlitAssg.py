@@ -1,3 +1,4 @@
+import io
 import streamlit as st
 import requests
 from Bio import SeqIO, SeqUtils
@@ -8,25 +9,24 @@ from Bio.SeqUtils.ProtParam import ProteinAnalysis
 def fetch_protein_data(uniprot_id):
     url = f"https://www.uniprot.org/uniprot/{uniprot_id}.fasta"
     try:
-        print("Fetching data from:", url)
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
-        print("Response status code:", response.status_code)
-        
-        record = SeqIO.read(io.StringIO(response.content.decode('utf-8')), "fasta")
-        
-        return {
-            "sequence": str(record.seq),
-            "length": len(record.seq),
-            "molecular_weight": SeqUtils.molecular_weight(record.seq)
-        }
+        if response.ok:
+            record = SeqIO.read(io.StringIO('\n'.join(response.text.splitlines())), "fasta")
+            return {
+                "sequence": str(record.seq),
+                "length": len(record.seq),
+                "molecular_weight": SeqUtils.molecular_weight(record.seq)
+            }
+        else:
+            st.error("Failed to fetch protein data. Please check the UniProt ID and try again.")
+            return None
     except requests.exceptions.RequestException as e:
         st.error("An error occurred while fetching protein data:", e)
         return None
-    except (ValueError, AttributeError, SeqIO.SeqIOError) as e:
-        st.error("An error occurred while processing the protein data:", e)
+    except (ValueError, AttributeError) as e:
+        st.error(f"An error occurred while processing the protein data: {e}")
         return None
-
 
 
 # Function to fetch protein-protein interaction network from STRING DB
@@ -106,5 +106,4 @@ def main():
             hydrophobicity = protein_analysis.protein_scale(window=9, edge="center")[0]
             st.write(f"Hydrophobicity: {hydrophobicity}")
 
-if __name__ == "__main__":
-    main()
+main()
