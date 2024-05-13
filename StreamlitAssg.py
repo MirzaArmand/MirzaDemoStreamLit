@@ -5,7 +5,6 @@ from Bio.Align.Applications import ClustalOmegaCommandline
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 
 # Function to fetch protein data from UniProt
-# Function to fetch protein data from UniProt
 def fetch_protein_data(uniprot_id):
     url = f"https://www.uniprot.org/uniprot/{uniprot_id}.fasta"
     try:
@@ -14,7 +13,7 @@ def fetch_protein_data(uniprot_id):
         response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
         print("Response status code:", response.status_code)
         
-        record = SeqIO.read(response.content.decode('utf-8').splitlines(), "fasta")
+        record = SeqIO.read(io.StringIO(response.content.decode('utf-8')), "fasta")
         
         return {
             "sequence": str(record.seq),
@@ -24,9 +23,10 @@ def fetch_protein_data(uniprot_id):
     except requests.exceptions.RequestException as e:
         st.error("An error occurred while fetching protein data:", e)
         return None
-    except (ValueError, SeqIO.SeqRecord, SeqIO.SeqRecord, AttributeError) as e:
+    except (ValueError, AttributeError, SeqIO.SeqIOError) as e:
         st.error("An error occurred while processing the protein data:", e)
         return None
+
 
 
 # Function to fetch protein-protein interaction network from STRING DB
