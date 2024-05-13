@@ -4,6 +4,7 @@ import requests
 from Bio import SeqIO, SeqUtils
 from Bio.Align.Applications import ClustalOmegaCommandline
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
+from Bio.Alphabet import IUPAC
 
 # Function to fetch protein data from UniProt
 def fetch_protein_data(uniprot_id):
