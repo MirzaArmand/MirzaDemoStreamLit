@@ -38,12 +38,12 @@ def fetch_ppi_network(uniprot_id):
         return None
     except KeyError as e:
         st.error(f"Failed to fetch protein-protein interaction network: {e}")
+        st.error("Response status code:", response.status_code)
         st.error("Response content:", response.content)
         return None
     except Exception as e:
         st.error("An unexpected error occurred:", e)
         return None
-
 
 # Function to perform sequence alignment
 def perform_sequence_alignment(protein_sequence):
