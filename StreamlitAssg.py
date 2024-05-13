@@ -36,6 +36,7 @@ def fetch_ppi_network(uniprot_id):
         st.error("An unexpected error occurred while fetching protein-protein interaction network:", e)
         st.error("Response status code:", response.status_code)
         st.error("Response content:", response.content)
+        st.error("Response text:", response.text)
         return None
 
 
