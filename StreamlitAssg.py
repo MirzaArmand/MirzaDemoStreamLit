@@ -32,14 +32,26 @@ def fetch_ppi_network(uniprot_id):
         st.write("Response content:", response.content)
         data = response.json()
         st.write("Data structure:", data)
-        interaction_partners = [partner["preferredName"] for partner in data if "preferredName" in partner]
-        return interaction_partners
+
+        # Check if data is a list of dictionaries
+        if isinstance(data, list):
+            interaction_partners = []
+            for item in data:
+                if "preferredName_A" in item:
+                    interaction_partners.append(item["preferredName_A"])
+                if "preferredName_B" in item:
+                    interaction_partners.append(item["preferredName_B"])
+            return interaction_partners
+        else:
+            raise ValueError("Unexpected data structure")
+
     except Exception as e:
         st.error("An unexpected error occurred while fetching protein-protein interaction network:", e)
         st.error("Response status code:", response.status_code)
         st.error("Response content:", response.content)
         st.error("Response text:", response.text)
         return None
+
 
 
 # Function to perform sequence alignment
