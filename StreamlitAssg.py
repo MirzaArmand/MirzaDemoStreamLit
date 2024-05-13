@@ -5,22 +5,23 @@ from Bio import SeqIO, SeqUtils
 from Bio.Align.Applications import ClustalOmegaCommandline
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 
-# Function to fetch protein data from UniProt
-def fetch_protein_data(uniprot_id):
-    url = f"https://www.uniprot.org/uniprot/{uniprot_id}.fasta"
-    response = requests.get(url)
-    record = SeqIO.read(io.StringIO('\n'.join(response.text.splitlines())), "fasta")
-
+# Function to fetch protein-protein interaction network from STRING DB
+def fetch_ppi_network(uniprot_id):
+    url = f"https://string-db.org/api/json/interaction_partners?identifiers={uniprot_id}"
     try:
-        molecular_weight = SeqUtils.molecular_weight(record.seq)
-    except ValueError:
-        molecular_weight = SeqUtils.molecular_weight(record.seq, seq_type="protein")
-
-    return {
-        "sequence": str(record.seq),
-        "length": len(record.seq),
-        "molecular_weight": molecular_weight
-    }
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
+        st.write("Response content:", response.content)
+        data = response.json()
+        st.write("Data structure:", data)
+        interaction_partners = [partner["preferredName"] for partner in data if "preferredName" in partner]
+        return interaction_partners
+    except Exception as e:
+        st.error("An unexpected error occurred while fetching protein-protein interaction network:", e)
+        st.error("Response status code:", response.status_code)
+        st.error("Response content:", response.content)
+        st.error("Response text:", response.text)
+        return None
 
 
 # Function to fetch protein-protein interaction network from STRING DB
