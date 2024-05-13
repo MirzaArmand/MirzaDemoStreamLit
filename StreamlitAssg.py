@@ -44,6 +44,7 @@ def fetch_ppi_network(uniprot_id):
         return None
 
 # Function to visualize protein-protein interaction network
+# Function to visualize protein-protein interaction network
 def visualize_ppi_network(data):
     # Create a directed graph
     G = nx.DiGraph()
@@ -55,10 +56,11 @@ def visualize_ppi_network(data):
         G.add_edge(protein_A, protein_B)
 
     # Draw the graph
+    fig, ax = plt.subplots()
     pos = nx.spring_layout(G)
     nx.draw(G, pos, with_labels=True, node_color='skyblue', node_size=1500, edge_color='black', linewidths=1, font_size=10)
     plt.title("Protein-Protein Interaction Network")
-    st.pyplot()
+    st.pyplot(fig)
 
 # Function to perform sequence alignment
 def perform_sequence_alignment(protein_sequence):
